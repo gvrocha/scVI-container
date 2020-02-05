@@ -48,9 +48,21 @@ RUN	R -e "install.packages('RcppCNPy', dependencies=TRUE, repos='http://cran.rst
 
 RUN	pip install rpy2 pandas matplotlib sklearn IPython
 
+# Step 05: add git repositories
 RUN	apt-get -y install git
 
 RUN	mkdir -p /scVI && \
 	cd /scVI && \
 	git clone https://github.com/gvrocha/scVI-reproducibility.git &&\
 	git clone https://github.com/gvrocha/scVI-container.git
+
+# Step 06: more R packages
+# copula requires gmp which requires GMP C library and Rmpfr which requires mpfr.h, see:
+# https://stackoverflow.com/questions/22277440/in-r-using-ubuntu-try-to-install-a-lib-depending-on-gmp-c-lib-it-wont-find-g/26451979
+# https://stackoverflow.com/questions/28868789/error-when-trying-to-install-rmpfr-in-r-related-to-the-header-file-mpfr-h
+RUN	apt-get -y install libgmp3-dev libmpfr-dev && \
+	R -e "install.packages('ADGofTest', dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
+	R -e "install.packages('gsl', dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
+	R -e "install.packages('pspline', dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
+	R -e "install.packages('copula', dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
+	R -e "BiocManager::install('scone', ask=FALSE)"
