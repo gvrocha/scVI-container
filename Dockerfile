@@ -48,7 +48,7 @@ RUN	R -e "install.packages('RcppCNPy', dependencies=TRUE, repos='http://cran.rst
 
 RUN	pip install rpy2 pandas matplotlib sklearn IPython
 
-RUN	apt-get install git
+RUN	apt-get -y install git
 
 RUN	mkdir -p /scVI && \
 	cd /scVI && \
