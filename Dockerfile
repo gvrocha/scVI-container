@@ -66,3 +66,15 @@ RUN	apt-get -y install libgmp3-dev libmpfr-dev && \
 	R -e "install.packages('pspline', dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
 	R -e "install.packages('copula', dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
 	R -e "BiocManager::install('scone', ask=FALSE)"
+
+# Step 07: scripts for dowloading, organizing and preprocessing data:
+ENV	OUTDIR	/base/scVI-data
+
+RUN	apt-get -y install wget && \
+	mkdir -p ${OUTDIR}/reorganized/originals && \
+	unzip /scVI/scVI-reproducibility/additional/data.zip PBMC/*   -d ${OUTDIR}/reorganized/originals && \
+	unzip /scVI/scVI-reproducibility/additional/data.zip RETINA/* -d ${OUTDIR}/reorganized/originals && \
+	unzip /scVI/scVI-reproducibility/additional/data.zip HEMATO/* -d ${OUTDIR}/reorganized/originals && \
+	mkdir -p ${OUTDIR}/reorganized/originals/CORTEX && \
+	wget -v -O ${OUTDIR}/reorganized/originals/CORTEX/expression_mRNA_17-Aug-2014.txt https://storage.googleapis.com/linnarsson-lab-www-blobs/blobs/cortex/expression_mRNA_17-Aug-2014.txt
+
