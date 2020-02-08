@@ -66,3 +66,8 @@ RUN	pip install rpy2 pandas matplotlib sklearn IPython
 
 # STEP 05: Install BAMMSC
 RUN	R -e "devtools::install_github('lichen-lab/BAMMSC')"
+
+# STEP 06: Install additional tools and utilities
+RUN	apt-get -y install \
+# Install text editors
+	vim nano
