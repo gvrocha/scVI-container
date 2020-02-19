@@ -2,23 +2,35 @@
 title: "Test Tensorflow within RMarkdown"
 author: "Guilherme Rocha"
 date: "2020/02/19"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Reproducing the Tensorflow tutorial
+# Reproducing the Tensorflow tutorial
 
 The code below loads Tensorflow, prints its version and runs a small example.
+
+## Loading python modules
 
 ```{python load_tf}
 import tensorflow as tf
 print(tf.__version__)
+
+import numpy as np
+import matplotlib.pyplot as plt
 ```
 
+## Loading MNIST digit data
+
 Load the MNIST digit data and normalize it.
+It is included as part of the tensorflow module.
 
 ```{python load_mnist_data}
 mnist = tf.keras.datasets.mnist
@@ -27,23 +39,66 @@ mnist = tf.keras.datasets.mnist
 x_train, x_test = x_train / 255.0, x_test / 255.0
 ```
 
+## Show a few datapoints from the MNIST digit training data
+
 Showing two "data points" next.
 
-This is the first image and corresponding digit.
+### Display first image in training set 
+
+This is the first image and corresponding digit: we show the "output/label" first and then the "input" as a "tensor" and as an image.
 
 ```{python show_data_points_0}
 y_train[0:1]
 x_train[0:1]
+
+# plot the sample
+fig = plt.figure
+plt.imshow(x_train[0], cmap='gray')
+plt.show()
 ```
 
-This is the second image and corresponding digit.
+### Display second image in training set 
+
+Next, This is the second image and corresponding digit in training set: we show the "output/label" first and then the "input" as a "tensor" and as an image.
 
 ```{python show_data_points_1}
 y_train[1:2]
 x_train[1:2]
+
+# plot the sample
+fig = plt.figure
+plt.imshow(x_train[1], cmap='gray')
+plt.show()
 ```
 
+### Display a few more cases in training set 
+
+A few more examples (and a little more on how to use matplotlib).
+Code is based on https://medium.com/@mrdatascience/how-to-plot-mnist-digits-using-matplotlib-65a2e0cc068
+
+```{python plot_training_set_examples}
+num_row = 2
+num_col = 5
+num = num_row*num_col
+images = x_train[:num]
+labels = y_train[:num]
+
+# plot images
+fig, axes = plt.subplots(num_row, num_col, figsize=(1.5*num_col,2*num_row))
+for i in range(num):
+    ax = axes[i//num_col, i%num_col]
+    ax.imshow(images[i], cmap='gray_r')
+    ax.set_title('Label: {}'.format(labels[i]))
+plt.tight_layout()
+plt.show()
+```
+
+## Define a NN model:
+
 Construct the model (but do not train it yet).
+
+Notice that all components included within the tf.keras.models.Sequential are defined within tf.keras.layers.
+See more examples at https://www.tensorflow.org/api_docs/python/tf/keras/layers
 
 ```{python build_tf_model}
 model = tf.keras.models.Sequential([
@@ -60,6 +115,8 @@ untrained_model = tf.keras.models.Sequential([
   tf.keras.layers.Dense(10)
 ])
 ```
+
+## Get predictions from (an untrained ?!) model
 
 The code below outputs predictions for the first two images for an untrained model.
 
@@ -86,15 +143,26 @@ tf.nn.softmax(predictions_0_0).numpy()
 tf.nn.softmax(predictions_0_1).numpy()
 ```
 
+## Define loss function for training the model
+
 Before we can train the model, we need to specify a loss function.
 Here, we are using the pre-constructed SparseCategoricalCrossentropy (see https://www.tensorflow.org/api_docs/python/tf/keras/losses/SparseCategoricalCrossentropy).
+
+For other loss functions, see https://www.tensorflow.org/api_docs/python/tf/keras/losses
 
 ```{python define_loss_function}
 loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 ```
-
 The following evaluate the loss in the first and second image from the pre-training predictions.
 At this point, we should not expect the model to perform very well.
+
+In the three examples below, we are showing:
+
+  * The loss from trying to predict the first label from first image
+  * The loss from trying to predict the second label from second image
+  * The loss from trying to predict the second label from first image (which should not work very well).
+
+Notice that the loss of trying to predict the second label from the first image is not that much worse than trying to predict the first (alt second) label from first (alt second) image.
 
 ```{python evaluate_loss_function_0}
 loss_fn(y_train[0:1], predictions_0_0).numpy()
@@ -102,7 +170,7 @@ loss_fn(y_train[1:2], predictions_0_1).numpy()
 loss_fn(y_train[1:2], predictions_0_0).numpy()
 ```
 
-This is the same, but the mistmatch is a bit more explicit:
+The next two chunks are similar, but the mistmatch is a bit more explicit:
 
 ```{python evaluate_loss_function_0a}
 loss_fn(y_train[0:1], model(x_train[0:1]).numpy()).numpy()
@@ -116,6 +184,8 @@ loss_fn(y_train[1:2], untrained_model(x_train[1:2]).numpy()).numpy()
 loss_fn(y_train[1:2], untrained_model(x_train[0:1]).numpy()).numpy()
 ```
 
+## Compile the model (add loss and optimizer?)
+
 This links the model with the loss function and metrics.
 
 ```{python compile_model}
@@ -127,17 +197,25 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 ```
 
-This is a first evaluation of the model.
+## Evaluate the untrained model in the test set
+
+This is a first evaluation of the model prior to training.
 
 ```{python model_evaluation_00}
 model.evaluate(x_test,  y_test, verbose=2)
 ```
+
+## Train the model
 
 This runs 5 epochs of training in the model.
 
 ```{python model_fit_round_01}
 model.fit(x_train, y_train, epochs=5)
 ```
+
+## Compare performance of trained and untrained model
+
+### In the test set
 
 This compares the model after a first round of training with the untrained model.
 
@@ -146,17 +224,31 @@ untrained_model.evaluate(x_test,  y_test, verbose=2)
 model.evaluate(x_test,  y_test, verbose=2)
 ```
 
+### Back to looking at the loss in matched and mismatched label-image pairs
+
+Below, the evaluation of the loss in an untrained and trained model are again shown in three examples:
+
+  * The loss from trying to predict the first label from first image
+  * The loss from trying to predict the second label from second image
+  * The loss from trying to predict the second label from first image (which should not work very well).
+
+The loss is much higher in the mismatched case for the trained model.
+
 ```{python evaluate_loss_function_1a}
 loss_fn(y_train[0:1], model(x_train[0:1]).numpy()).numpy()
 loss_fn(y_train[1:2], model(x_train[1:2]).numpy()).numpy()
 loss_fn(y_train[1:2], model(x_train[0:1]).numpy()).numpy()
 ```
 
+The loss is not much different in the mismatched case for the untrained model.
+
 ```{python evaluate_loss_function_1b}
 loss_fn(y_train[0:1], untrained_model(x_train[0:1]).numpy()).numpy()
 loss_fn(y_train[1:2], untrained_model(x_train[1:2]).numpy()).numpy()
 loss_fn(y_train[1:2], untrained_model(x_train[0:1]).numpy()).numpy()
 ```
+
+## Concatenate evaluation and softmax function
 
 The code below defines a probability_model function that spits out the predicted probabilities.
 ```{python define_probability_model}
@@ -165,12 +257,15 @@ probability_model = tf.keras.Sequential([
   tf.keras.layers.Softmax()
 ])
 ```
+Notice this is somewhat similar to how the model is constructed above.
 
 The code below defines a probability_model function that spits out the predicted probabilities.
 ```{python output_probability_model}
 y_test[:5]
 probability_model(x_test[:5])
 ```
+
+## How not to do it: only include tf.keras.layers within a tf.keras.Sequential statement
 
 WARNING: The alt_probability_model function defined as below does NOT work because tf.nn.softmax is not of class Layer.
 ```{python alternative_probability_model_fails, eval = FALSE}
