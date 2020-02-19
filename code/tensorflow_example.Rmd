@@ -1,0 +1,186 @@
+---
+title: "Test Tensorflow within RMarkdown"
+author: "Guilherme Rocha"
+date: "2020/02/19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reproducing the Tensorflow tutorial
+
+The code below loads Tensorflow, prints its version and runs a small example.
+
+```{python load_tf}
+import tensorflow as tf
+print(tf.__version__)
+```
+
+Load the MNIST digit data and normalize it.
+
+```{python load_mnist_data}
+mnist = tf.keras.datasets.mnist
+
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+```
+
+Showing two "data points" next.
+
+This is the first image and corresponding digit.
+
+```{python show_data_points_0}
+y_train[0:1]
+x_train[0:1]
+```
+
+This is the second image and corresponding digit.
+
+```{python show_data_points_1}
+y_train[1:2]
+x_train[1:2]
+```
+
+Construct the model (but do not train it yet).
+
+```{python build_tf_model}
+model = tf.keras.models.Sequential([
+  tf.keras.layers.Flatten(input_shape=(28, 28)),
+  tf.keras.layers.Dense(128, activation='relu'),
+  tf.keras.layers.Dropout(0.2),
+  tf.keras.layers.Dense(10)
+])
+
+untrained_model = tf.keras.models.Sequential([
+  tf.keras.layers.Flatten(input_shape=(28, 28)),
+  tf.keras.layers.Dense(128, activation='relu'),
+  tf.keras.layers.Dropout(0.2),
+  tf.keras.layers.Dense(10)
+])
+```
+
+The code below outputs predictions for the first two images for an untrained model.
+
+Comments:
+
+* Notice that no-training was done, so these are likely very bad predictions
+  * This is a somewhat puzzling construct in TF: right after the model is sketched, it is ready to be used even if no training was done
+  * Related question: how are the parameters of this initial model setup?
+* Below, I am using the following notation:
+  * predictions_i.j: predictions (in logit scale) for the j-th image after i rounds of training
+
+```{python get_raw_predictions}
+predictions_0_0 = model(x_train[0:1]).numpy()
+predictions_0_0
+
+predictions_0_1 = model(x_train[1:2]).numpy()
+predictions_0_1
+```
+
+The tf.nn.softmax converts from logit scale to probabilities
+
+```{python predictions_as_probability}
+tf.nn.softmax(predictions_0_0).numpy()
+tf.nn.softmax(predictions_0_1).numpy()
+```
+
+Before we can train the model, we need to specify a loss function.
+Here, we are using the pre-constructed SparseCategoricalCrossentropy (see https://www.tensorflow.org/api_docs/python/tf/keras/losses/SparseCategoricalCrossentropy).
+
+```{python define_loss_function}
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+```
+
+The following evaluate the loss in the first and second image from the pre-training predictions.
+At this point, we should not expect the model to perform very well.
+
+```{python evaluate_loss_function_0}
+loss_fn(y_train[0:1], predictions_0_0).numpy()
+loss_fn(y_train[1:2], predictions_0_1).numpy()
+loss_fn(y_train[1:2], predictions_0_0).numpy()
+```
+
+This is the same, but the mistmatch is a bit more explicit:
+
+```{python evaluate_loss_function_0a}
+loss_fn(y_train[0:1], model(x_train[0:1]).numpy()).numpy()
+loss_fn(y_train[1:2], model(x_train[1:2]).numpy()).numpy()
+loss_fn(y_train[1:2], model(x_train[0:1]).numpy()).numpy()
+```
+
+```{python evaluate_loss_function_0b}
+loss_fn(y_train[0:1], untrained_model(x_train[0:1]).numpy()).numpy()
+loss_fn(y_train[1:2], untrained_model(x_train[1:2]).numpy()).numpy()
+loss_fn(y_train[1:2], untrained_model(x_train[0:1]).numpy()).numpy()
+```
+
+This links the model with the loss function and metrics.
+
+```{python compile_model}
+untrained_model.compile(optimizer='adam',
+                        loss=loss_fn,
+                        metrics=['accuracy'])
+model.compile(optimizer='adam',
+              loss=loss_fn,
+              metrics=['accuracy'])
+```
+
+This is a first evaluation of the model.
+
+```{python model_evaluation_00}
+model.evaluate(x_test,  y_test, verbose=2)
+```
+
+This runs 5 epochs of training in the model.
+
+```{python model_fit_round_01}
+model.fit(x_train, y_train, epochs=5)
+```
+
+This compares the model after a first round of training with the untrained model.
+
+```{python model_evaluation_01}
+untrained_model.evaluate(x_test,  y_test, verbose=2)
+model.evaluate(x_test,  y_test, verbose=2)
+```
+
+```{python evaluate_loss_function_1a}
+loss_fn(y_train[0:1], model(x_train[0:1]).numpy()).numpy()
+loss_fn(y_train[1:2], model(x_train[1:2]).numpy()).numpy()
+loss_fn(y_train[1:2], model(x_train[0:1]).numpy()).numpy()
+```
+
+```{python evaluate_loss_function_1b}
+loss_fn(y_train[0:1], untrained_model(x_train[0:1]).numpy()).numpy()
+loss_fn(y_train[1:2], untrained_model(x_train[1:2]).numpy()).numpy()
+loss_fn(y_train[1:2], untrained_model(x_train[0:1]).numpy()).numpy()
+```
+
+The code below defines a probability_model function that spits out the predicted probabilities.
+```{python define_probability_model}
+probability_model = tf.keras.Sequential([
+  model,
+  tf.keras.layers.Softmax()
+])
+```
+
+The code below defines a probability_model function that spits out the predicted probabilities.
+```{python output_probability_model}
+y_test[:5]
+probability_model(x_test[:5])
+```
+
+WARNING: The alt_probability_model function defined as below does NOT work because tf.nn.softmax is not of class Layer.
+```{python alternative_probability_model_fails, eval = FALSE}
+alt_probability_model = tf.keras.Sequential([
+  model,
+  tf.nn.softmax
+])
+
+alt_probability_model = tf.keras.Sequential([
+  model,
+  tf.nn.softmax()
+])
+```
