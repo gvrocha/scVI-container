@@ -1,0 +1,36 @@
+---
+title: "Test Tensorflow within RMarkdown"
+author: "Guilherme Rocha"
+date: "2020/02/19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## A few silly Python tests in RMarkdown
+
+### Very basic arrays
+
+The code below creates an array called ``python "a"``, prints it and then prints the set version of the array.
+
+```{python test_python_01}
+a = [1, 2, 2, 3]
+print(a)
+print(set(a))
+```
+
+### Python modules
+
+Modules are the python version of packages.
+
+The code below imports the os module (typically used for operating system operations) and uses it to find out the current directory and print it.
+
+```{python test_python_os}
+import os
+
+dir_path = os.path.dirname(os.getcwd())
+print(dir_path)
+```
+
