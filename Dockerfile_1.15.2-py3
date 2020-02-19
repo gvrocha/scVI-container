@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.0.1-py3
+FROM tensorflow/tensorflow:1.15.2-py3
 
 # The installation of R was taken from multiple sources:
 # - https://github.com/openanalytics/r-base/blob/master/Dockerfile
@@ -71,6 +71,3 @@ RUN	R -e "devtools::install_github('lichen-lab/BAMMSC')"
 RUN	apt-get -y install \
 # Install text editors
 	vim nano
-
-# STEP 07: Install pandoc to allow rmarkdown to be used within container
-RUN	apt-get -y install pandoc
