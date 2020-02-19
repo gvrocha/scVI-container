@@ -19,3 +19,37 @@ When using this in conjunction with https://github.com/gvrocha/scVI-reproducibil
 ```
 singularity run --containall -B /home/myusername/my.scvi.directory:/scVI scvi.simg
 ```
+
+## Testing the image
+
+After entering an instance of the image, the following tests can be performed.
+
+### Load tensor flow within python
+
+From a python prompt within an instance of the container, run
+
+```python
+import tensorflow as tf
+print(tf.__version__)
+```
+
+### Load libraries within R 
+
+From an R prompt within an instance of the container, run
+```R
+library(rmarkdown)
+library(zinbwave)
+```
+
+### Create an example report using Rmarkdown
+
+Assuming that the folder containing scVI-container is mounted at /scVI as recommended above, go to R and run
+
+```R
+rmarkdown::render("/scVI/scVI-container/code/tensorflow_test.Rmd")
+```
+
+You can also generate a report that reproduces the TensorFlow tutorial within an Rmarkdown document using 
+```R
+rmarkdown::render("/scVI/scVI-container/code/tensorflow_example.Rmd")
+```
