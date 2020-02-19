@@ -43,11 +43,15 @@ library(zinbwave)
 
 ### Create an example report using Rmarkdown
 
+In the examples/tests in this section, you may be prompted to install Miniconda.
+If that happens, just say no; the examples should still work without it.
+
 Assuming that the folder containing scVI-container is mounted at /scVI as recommended above, go to R and run
 
 ```R
 rmarkdown::render("/scVI/scVI-container/code/tensorflow_test.Rmd")
 ```
+
 
 You can also generate a report that reproduces the TensorFlow tutorial within an Rmarkdown document using 
 ```R
