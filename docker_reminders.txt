@@ -1,5 +1,6 @@
 docker image pull tensorflow/tensorflow:1.15.2-py3
 docker container run -it tensorflow/tensorflow:1.15.2-py3 /bin/bash
+docker container run -it tensorflow/tensorflow:2.0.1-py3 /bin/bash
 
 docker image build -t tensorflow_r:0.1 -f Dockerfile.tensorflow_R.step_01 .
 nohup docker image build -t tensorflow_r:0.3 -f Dockerfile.tensorflow_R.step_03 . > prg_tensorflow_R.step_03 & 
