@@ -7,17 +7,26 @@ The resulting container is currently hosted at https://hub.docker.com/repository
 
 ### For use with Singularity
 
-To build a local Singularity image call from the latest image
+Keep in mind: scVI from scVI reproducibility uses TF version 1.15.2. Current Tensorflow tutorial examples are based on TF2. Different images are supported in this repository for different purposes.
+
+* To build a local Singularity image call from the TF1.15.2 version:
 
 ```
-singularity build scvi.simg docker://gvrocha/scvi
+singularity build scvi_py3-tf1.15.2.simg docker://gvrocha/scvi:py3-tf1.15.2
 ```
+
+* To build a local Singularity image call from the TF1.15.2 version:
+
+```
+singularity build scvipy3-tf2.0.1.simg docker://gvrocha/scvi:py3-tf2.0.1
+```
+
 
 To execute within the Singularity container, it is recommended to use the --containall so the instance is kept separate from the local environment and to link a local directory to the /scVI directory in the image instance.
 When using this in conjunction with https://github.com/gvrocha/scVI-reproducibility, it is recommended that both the scVI-container and scVI-reproducibility be within /home/myusername/my.scvi.directory
 
 ```
-singularity run --containall -B /home/myusername/my.scvi.directory:/scVI scvi.simg
+singularity run --containall -B /home/myusername/my.scvi.directory:/scVI scvi_py3-tf1.15.2.simg
 ```
 
 ## Testing the image
