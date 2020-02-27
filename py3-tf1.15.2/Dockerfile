@@ -71,3 +71,7 @@ RUN	R -e "devtools::install_github('lichen-lab/BAMMSC')"
 RUN	apt-get -y install \
 # Install text editors
 	vim nano
+
+# STEP 07: Install pandoc to allow rmarkdown to be used within container
+RUN	apt-get -y install pandoc
+

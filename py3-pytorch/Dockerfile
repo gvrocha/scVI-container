@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:1.15.2-py3
+FROM pytorch/pytorch:1.4-cuda10.1-cudnn7-devel
 
 # The installation of R was taken from multiple sources:
 # - https://github.com/openanalytics/r-base/blob/master/Dockerfile
@@ -14,8 +14,12 @@ ENV CRAN_URL https://cloud.r-project.org/
 # This is here to force a specific version of R to be installed
 ENV R_BASE_VERSION 3.6.1
 
+# STEP 00: Install SCVI using conda
+RUN	conda install -y scvi -c bioconda -c conda-forge
+
 # STEP 01: Install R (small issue here: this is getting me R version 3.6.2
-RUN	apt-get -y install \
+RUN	apt-get -y update && \
+	apt-get -y install \
 	apt-transport-https software-properties-common && \
 	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 && \ 
 	add-apt-repository -y 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/'  && \
@@ -71,3 +75,6 @@ RUN	R -e "devtools::install_github('lichen-lab/BAMMSC')"
 RUN	apt-get -y install \
 # Install text editors
 	vim nano
+
+# STEP 07: Install pandoc to allow rmarkdown to be used within container
+RUN	apt-get -y install pandoc

@@ -1,0 +1,44 @@
+---
+title: "Test Tensorflow within RMarkdown"
+author: "Guilherme Rocha"
+date: "2020/02/19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## First: a few silly Python tests
+
+The code below creates an array called ``python "a"``, prints it and then prints the set version of the array.
+
+```{python test_python_01}
+a = [1, 2, 2, 3]
+print(a)
+print(set(a))
+```
+
+Modules are the python version of packages.
+
+The code below imports the os module (typically used for operating system operations) and uses it to find out the current directory and print it.
+
+```{python test_python_os}
+import os
+
+dir_path = os.path.dirname(os.getcwd())
+print(dir_path)
+```
+
+## Now: test PyTorch installation
+
+The code below loads PyTorch, prints its version and runs a small example.
+
+```{python test_tf}
+import torch
+print(torch.version.git_version)
+print(torch.version.debug)
+print(torch.version.cuda)
+x = torch.randn(3,5,6)
+print(x)
+```
