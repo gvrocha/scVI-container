@@ -31,7 +31,6 @@ singularity build scvi.py3-tf2.0.1.simg docker://gvrocha/scvi:py3-tf2.0.1
 singularity build scvi.py3-pytorch.simg docker://gvrocha/scvi:py3-pytorch
 ```
 
-
 To execute within the Singularity container, two recommendations are made:
 
 * use the --containall so the container is kept separate from the local environment, 
@@ -41,6 +40,26 @@ Assuming these are followed and that the repos are stored in the /home/myusernam
 
 ```
 singularity run --containall -B /home/myusername/my.scvi.directory:/scVI scvi_py3-tf1.15.2.simg
+```
+
+### Using the containers with Docker
+
+* To run a Docker container with the TensorFlow 1.15.2 version and linking the home/myusername/my.scvi.directory folder in the host to the /scVI folder in the container, call:
+
+```
+docker container run -it -v /home/myusername/my.scvi.directory:/scVI  gvrocha/scvi:py3-tf1.15.2 /bin/bash
+```
+
+* To run a Docker container with the TensorFlow 2.0.1 version and linking the home/myusername/my.scvi.directory folder in the host to the /scVI folder in the container, call:
+
+```
+docker container run -it -v /home/myusername/my.scvi.directory:/scVI  gvrocha/scvi:py3-tf2.0.1 /bin/bash
+```
+
+* To run a Docker container with the Pytorch version and linking the home/myusername/my.scvi.directory folder in the host to the /scVI folder in the container, call:
+
+```
+docker container run -it -v /home/myusername/my.scvi.directory:/scVI  gvrocha/scvi:py3-pytorch /bin/bash
 ```
 
 ## Testing the image
