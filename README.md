@@ -94,7 +94,14 @@ rmarkdown::render("/scVI/scVI-container/code/tensorflow_test.Rmd")
 ```
 
 #### More detailed test for TF2.0.1
-Under the same assumptions, you can also use the scvi:py3-tf2.0.1 to generate a report that reproduces the TensorFlow tutorial within an Rmarkdown document by calling, from within R: 
+Under the same assumptions, you can also use the scvi:py3-tf2.0.1 container to generate a report that reproduces the TensorFlow tutorial within an Rmarkdown document by calling, from within R: 
 ```R
 rmarkdown::render("/scVI/scVI-container/py3-tf2.0.1/code/tensorflow_example.Rmd")
+```
+
+## Test for PyTorch/scVI
+
+Within the scvi:py3-pytorch container, start R and, assuming the scVI container repo is mapper within /scVI, run
+```R
+rmarkdown::render("/scVI/scVI-container/py3-pytorch/code/pytorch_test.Rmd")
 ```
