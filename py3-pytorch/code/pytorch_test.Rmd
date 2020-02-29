@@ -1,7 +1,7 @@
 ---
-title: "Test Tensorflow within RMarkdown"
+title: "Test Pytorch and scVI within RMarkdown"
 author: "Guilherme Rocha"
-date: "2020/02/19"
+date: "2020/02/28"
 output: html_document
 ---
 
@@ -30,15 +30,43 @@ dir_path = os.path.dirname(os.getcwd())
 print(dir_path)
 ```
 
-## Now: test PyTorch installation
+## Test PyTorch installation
 
 The code below loads PyTorch, prints its version and runs a small example.
 
-```{python test_tf}
+```{python test_pytorch}
 import torch
 print(torch.version.git_version)
 print(torch.version.debug)
 print(torch.version.cuda)
 x = torch.randn(3,5,6)
 print(x)
+```
+
+## Test scVI installation
+
+
+```{python test_scvi}
+from scvi.dataset import PbmcDataset
+import os
+
+save_path = "/scVI/scVI-container/py3-pytorch/test"
+pbmc_dataset = PbmcDataset(save_path=save_path, save_path_10X=os.path.join(save_path, "10X"))
+
+print(pbmc_dataset)
+
+pbmc_dataset.gene_names
+pbmc_dataset.barcodes
+pbmc_dataset.local_vars
+pbmc_dataset.batch_indices
+pbmc_dataset.local_means
+pbmc_dataset.labels
+
+pbmc_dataset.subsample_genes(new_n_genes=3000)
+pbmc_dataset.filter_cells_by_count(500)
+
+retain = []
+for i, g in enumerate(pbmc_dataset.gene_names):
+	if g.startswith("ENSG000001"):
+		retain.append(i)
 ```
