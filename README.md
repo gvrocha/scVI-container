@@ -93,7 +93,8 @@ Assuming that the folder containing the scVI-container repo is mounted at /scVI 
 rmarkdown::render("/scVI/scVI-container/code/tensorflow_test.Rmd")
 ```
 
-Under the same assumptions, you can also generate a report that reproduces the TensorFlow tutorial within an Rmarkdown document using 
+#### More detailed test for TF2.0.1
+Under the same assumptions, you can also use the scvi:py3-tf2.0.1 to generate a report that reproduces the TensorFlow tutorial within an Rmarkdown document by calling, from within R: 
 ```R
-rmarkdown::render("/scVI/scVI-container/code/tensorflow_example.Rmd")
+rmarkdown::render("/scVI/scVI-container/py3-tf2.0.1/code/tensorflow_example.Rmd")
 ```
